@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>學員資料練習應用程式</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 50px;
+            background-color: #f9f9f9;
+        }
+
+        /* 根據圖片設計的資料卡片 */
+        .student-card {
+            background-color: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+            max-width: 600px;
+            margin: 0 auto;
+            border: 1px solid #ddd;
+        }
+
+        /* 模擬圖片中的兩行排版 */
+        .card-row {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 10px;
+        }
+
+        .data-item {
+            font-size: 1.1rem;
+            color: #333;
+        }
+
+        .data-item strong {
+            color: #555;
+            margin-right: 5px;
+        }
+
+        /* 按鈕樣式 */
+        .control-panel {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        button {
+            background-color: #007BFF;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            font-size: 1rem;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+
+        button:hover {
+            background-color: #0056b3;
+        }
+
+    </style>
+</head>
+<body>
+
+    <div class="control-panel">
+        <h1>學員資料查詢介面</h1>
+        <button id="loadButton">從「資料庫」載入資料</button>
+    </div>
+
+    <!-- 這個區塊將用來顯示資料 -->
+    <div id="studentCardContainer"></div>
+
+    <script src="data.js"></script> <!-- 載入模擬資料庫 -->
+    <script src="app.js"></script>  <!-- 載入應用程式邏輯 -->
+
+</body>
+</html>
