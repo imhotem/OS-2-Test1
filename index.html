@@ -3,77 +3,179 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>學員資料練習應用程式</title>
+    <title>學員資料查詢介面</title>
     <style>
         body {
-            font-family: Arial, sans-serif;
-            margin: 50px;
-            background-color: #f9f9f9;
-        }
-
-        /* 根據圖片設計的資料卡片 */
-        .student-card {
-            background-color: white;
-            padding: 20px;
-            border-radius: 8px;
-            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
-            max-width: 600px;
-            margin: 0 auto;
-            border: 1px solid #ddd;
-        }
-
-        /* 模擬圖片中的兩行排版 */
-        .card-row {
+            font-family: "Microsoft JhengHei", Arial, sans-serif;
+            background-color: #f8f9fa;
             display: flex;
-            justify-content: space-between;
-            margin-bottom: 10px;
+            flex-direction: column;
+            align-items: center;
+            padding: 40px 20px;
+            margin: 0;
         }
 
-        .data-item {
-            font-size: 1.1rem;
-            color: #333;
+        h1 {
+            color: #111;
+            margin-bottom: 24px;
         }
 
-        .data-item strong {
-            color: #555;
-            margin-right: 5px;
-        }
-
-        /* 按鈕樣式 */
-        .control-panel {
-            text-align: center;
+        .btn-main {
+            background-color: #007bff;
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            font-size: 18px;
+            font-weight: bold;
+            border-radius: 8px;
+            cursor: pointer;
+            box-shadow: 0 4px 6px rgba(0, 123, 255, 0.2);
+            transition: background-color 0.2s;
             margin-bottom: 30px;
         }
 
-        button {
-            background-color: #007BFF;
-            color: white;
-            border: none;
-            padding: 10px 20px;
-            font-size: 1rem;
-            border-radius: 5px;
-            cursor: pointer;
-            transition: background-color 0.3s;
-        }
-
-        button:hover {
+        .btn-main:hover {
             background-color: #0056b3;
         }
 
+        /* 表單區域樣式 */
+        .form-card {
+            background: white;
+            padding: 24px 32px;
+            border-radius: 12px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+            width: 100%;
+            max-width: 600px;
+            margin-bottom: 30px;
+            box-sizing: border-box;
+        }
+
+        .form-card h2 {
+            margin-top: 0;
+            font-size: 20px;
+            color: #333;
+            border-bottom: 2px solid #007bff;
+            padding-bottom: 8px;
+            margin-bottom: 20px;
+        }
+
+        .form-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 16px;
+        }
+
+        .form-group {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .form-group label {
+            font-size: 14px;
+            color: #555;
+            margin-bottom: 6px;
+            font-weight: bold;
+        }
+
+        .form-group input, .form-group select {
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 6px;
+            font-size: 15px;
+        }
+
+        .btn-add {
+            background-color: #28a745;
+            color: white;
+            border: none;
+            padding: 12px;
+            font-size: 16px;
+            font-weight: bold;
+            border-radius: 6px;
+            cursor: pointer;
+            grid-column: span 2;
+            margin-top: 10px;
+            transition: background-color 0.2s;
+        }
+
+        .btn-add:hover {
+            background-color: #218838;
+        }
+
+        /* 資料卡片容器 */
+        #data-container {
+            width: 100%;
+            max-width: 600px;
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+        }
+
+        .student-card {
+            background: white;
+            padding: 20px 28px;
+            border-radius: 12px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr;
+            gap: 12px;
+            font-size: 16px;
+            color: #333;
+        }
+
+        .student-card div span {
+            font-weight: bold;
+            color: #666;
+        }
     </style>
 </head>
 <body>
 
-    <div class="control-panel">
-        <h1>學員資料查詢介面</h1>
-        <button id="loadButton">從「資料庫」載入資料</button>
+    <h1>學員資料查詢介面</h1>
+
+    <button class="btn-main" onclick="loadData()">從「資料庫」載入資料</button>
+
+    <!-- 新增學員資料表單 -->
+    <div class="form-card">
+        <h2>➕ 新增學員資料</h2>
+        <form id="student-form" onsubmit="addStudent(event)">
+            <div class="form-grid">
+                <div class="form-group">
+                    <label>編號</label>
+                    <input type="text" id="stu-id" placeholder="例: A02" required>
+                </div>
+                <div class="form-group">
+                    <label>姓名</label>
+                    <input type="text" id="stu-name" placeholder="例: 王小明" required>
+                </div>
+                <div class="form-group">
+                    <label>性別</label>
+                    <select id="stu-gender">
+                        <option value="男">男</option>
+                        <option value="女">女</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>學校</label>
+                    <input type="text" id="stu-school" placeholder="例: 建國學府" required>
+                </div>
+                <div class="form-group">
+                    <label>年級</label>
+                    <input type="text" id="stu-grade" placeholder="例: 2年級" required>
+                </div>
+                <div class="form-group">
+                    <label>班級</label>
+                    <input type="text" id="stu-class" placeholder="例: 201" required>
+                </div>
+                <button type="submit" class="btn-add">確認新增</button>
+            </div>
+        </form>
     </div>
 
-    <!-- 這個區塊將用來顯示資料 -->
-    <div id="studentCardContainer"></div>
+    <!-- 資料展示區域 -->
+    <div id="data-container"></div>
 
-    <script src="data.js"></script> <!-- 載入模擬資料庫 -->
-    <script src="app.js"></script>  <!-- 載入應用程式邏輯 -->
-
+    <script src="data.js"></script>
+    <script src="app.js"></script>
 </body>
 </html>
