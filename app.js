@@ -1,50 +1,89 @@
-// 渲染資料卡片的函式
-function renderStudents(dataArray) {
-    const container = document.getElementById('data-container');
-    container.innerHTML = ''; // 清空現有卡片
+// 頁面載入完成後執行
+document.addEventListener('DOMContentLoaded', () => {
+  renderStudentList();
+});
 
-    dataArray.forEach(student => {
-        const card = document.createElement('div');
-        card.className = 'student-card';
-        card.innerHTML = `
-            <div><span>編號：</span>${student.id}</div>
-            <div><span>姓名：</span>${student.name}</div>
-            <div><span>性別：</span>${student.gender}</div>
-            <div><span>學校：</span>${student.school}</div>
-            <div><span>年級：</span>${student.grade}</div>
-            <div><span>班級：</span>${student.classNum}</div>
-        `;
-        container.appendChild(card);
-    });
+// 切換「新增介面」與「瀏覽介面」
+function switchPage() {
+  const addPage = document.getElementById('addPage');
+  const listPage = document.getElementById('listPage');
+  const toggleBtn = document.getElementById('toggleBtn');
+
+  if (addPage.classList.contains('active')) {
+    // 切換至瀏覽頁面
+    addPage.classList.remove('active');
+    listPage.classList.add('active');
+    toggleBtn.textContent = '新增學員資料';
+    renderStudentList(); // 重新整理並重新排序
+  } else {
+    // 切換至新增頁面
+    listPage.classList.remove('active');
+    addPage.classList.add('active');
+    toggleBtn.textContent = '學生資料瀏覽';
+  }
 }
 
-// 載入初始資料
-function loadData() {
-    renderStudents(studentData);
+// 渲染瀏覽介面列表（依據編號排序）
+function renderStudentList() {
+  const tbody = document.getElementById('studentTableBody');
+  if (!tbody) return;
+
+  tbody.innerHTML = '';
+  let students = getStoredStudents();
+
+  if (students.length === 0) {
+    tbody.innerHTML = `<tr><td colspan="4" class="empty-msg">目前尚無學員資料</td></tr>`;
+    return;
+  }
+
+  // 依據「編號」進行升冪排序 (A01, A02, A03...)
+  students.sort((a, b) => a.id.localeCompare(b.id, undefined, { numeric: true, sensitivity: 'base' }));
+
+  // 動態建立表格內容
+  students.forEach(s => {
+    const tr = document.createElement('tr');
+    tr.innerHTML = `
+      <td class="student-id">${s.id}</td>
+      <td class="student-name">${s.name}</td>
+      <td class="student-gender">${s.gender}</td>
+      <td class="student-school">${s.school}</td>
+    `;
+    tbody.appendChild(tr);
+  });
 }
 
-// 新增學員資料處理函式
+// 新增學員資料
 function addStudent(event) {
-    event.preventDefault(); // 防止表單跳頁
+  event.preventDefault();
 
-    // 取得輸入數值
-    const newStudent = {
-        id: document.getElementById('stu-id').value,
-        name: document.getElementById('stu-name').value,
-        gender: document.getElementById('stu-gender').value,
-        school: document.getElementById('stu-school').value,
-        grade: document.getElementById('stu-grade').value,
-        classNum: document.getElementById('stu-class').value
-    };
+  const sid = document.getElementById('sid').value.trim();
+  const sname = document.getElementById('sname').value.trim();
+  const sgender = document.getElementById('sgender').value;
+  const sschool = document.getElementById('sschool').value.trim();
+  const sgrade = document.getElementById('sgrade').value.trim();
+  const sclass = document.getElementById('sclass').value.trim();
 
-    // 推入資料陣列
-    studentData.push(newStudent);
+  const students = getStoredStudents();
 
-    // 重新渲染畫面
-    renderStudents(studentData);
+  // 檢查學員編號是否重複
+  const exists = students.some(s => s.id.toUpperCase() === sid.toUpperCase());
+  if (exists) {
+    alert(`學員編號 "${sid}" 已存在，請使用其他編號！`);
+    return;
+  }
 
-    // 清空表單
-    document.getElementById('student-form').reset();
+  const newStudent = {
+    id: sid,
+    name: sname,
+    gender: sgender,
+    school: sschool,
+    grade: sgrade,
+    className: sclass
+  };
 
-    alert('新增成功！');
+  students.push(newStudent);
+  saveStoredStudents(students);
+
+  alert('新增成功！資料已儲存。');
+  document.getElementById('studentForm').reset();
 }
