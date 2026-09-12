@@ -32,7 +32,6 @@
             margin-bottom: 25px;
             color: #000;
         }
-        /* 頂部按鈕區塊 */
         .top-btn-container {
             text-align: center;
             margin-bottom: 30px;
@@ -53,14 +52,8 @@
             background-color: #0066ff;
             color: #ffffff;
         }
-        /* 頁面顯示/隱藏切換 */
-        .page {
-            display: none;
-        }
-        .page.active {
-            display: block;
-        }
-        /* 表單區塊樣式 */
+        .page { display: none; }
+        .page.active { display: block; }
         .card-title {
             font-size: 20px;
             font-weight: bold;
@@ -112,9 +105,7 @@
             cursor: pointer;
             transition: background 0.2s;
         }
-        .btn-submit:hover {
-            background-color: #15803d;
-        }
+        .btn-submit:hover { background-color: #15803d; }
         .btn-cancel {
             width: 100%;
             background-color: #6b7280;
@@ -126,12 +117,9 @@
             border-radius: 8px;
             margin-top: 10px;
             cursor: pointer;
-            display: none; /* 預設隱藏，編輯模式才顯示 */
+            display: none;
         }
-        .btn-cancel:hover {
-            background-color: #4b5563;
-        }
-        /* 列表表格樣式 */
+        .btn-cancel:hover { background-color: #4b5563; }
         .table-container {
             margin-top: 10px;
             overflow-x: auto;
@@ -167,9 +155,7 @@
             border-radius: 6px;
             cursor: pointer;
         }
-        .btn-edit:hover {
-            background-color: #1d4ed8;
-        }
+        .btn-edit:hover { background-color: #1d4ed8; }
         .empty-msg {
             text-align: center;
             color: #9ca3af;
@@ -178,14 +164,12 @@
     </style>
 </head>
 <body>
-
 <div class="container">
-    <!-- 切換按鈕 -->
     <div class="top-btn-container">
         <button id="toggleBtn" class="btn-switch" onclick="switchPage()">學生資料瀏覽</button>
     </div>
 
-    <!-- 頁面1: 新增 / 修改學員資料介面 -->
+    <!-- 頁面1: 新增/修改介面 -->
     <div id="addPage" class="page active">
         <h1 id="formPageTitle">學員資料新增介面</h1>
         <div class="card-title">
@@ -194,7 +178,7 @@
         <form id="studentForm" onsubmit="handleFormSubmit(event)">
             <div class="form-grid">
                 <div class="form-group">
-                    <label>編號 (主鍵不可修改)</label>
+                    <label>編號(主鍵不可修改)</label>
                     <input type="text" id="sid" placeholder="例:A02" required>
                 </div>
                 <div class="form-group">
@@ -226,7 +210,7 @@
         </form>
     </div>
 
-    <!-- 頁面2: 學員資料瀏覽介面 -->
+    <!-- 頁面2: 瀏覽介面 -->
     <div id="listPage" class="page">
         <h1>學員資料瀏覽介面</h1>
         <div class="table-container">
@@ -240,15 +224,12 @@
                         <th>操作</th>
                     </tr>
                 </thead>
-                <tbody id="studentTableBody">
-                    <!-- 資料會透過 app.js 動態渲染 -->
-                </tbody>
+                <tbody id="studentTableBody"></tbody>
             </table>
         </div>
     </div>
 </div>
 
-<!-- 引入 JS 檔 -->
-<script src="app.js"></script>
+<script src="main.js"></script>
 </body>
 </html>
