@@ -9,7 +9,7 @@ app.use(express.json());
 // 提供前端靜態檔案
 app.use(express.static(path.join(__dirname, '.')));
 
-// 建立 MySQL 連線池
+// 建立 MySQL 連線池 (帶有 10 秒逾時保護)
 const pool = mysql.createPool({
     host: process.env.DB_HOST,
     user: process.env.DB_USER,
@@ -20,13 +20,13 @@ const pool = mysql.createPool({
     connectTimeout: 10000
 });
 
-// 健康檢查 API
+// 健康檢查 API (此端點能精確捕獲任何連線錯誤訊息)
 app.get('/api/health', async (req, res) => {
     try {
         const [rows] = await pool.query('SELECT 1 + 1 AS result');
-        res.json({ message: 'AWS RDS 資料庫連線成功！', data: rows });
+        res.json({ status: 'ok', message: 'AWS RDS 資料庫連線成功！', data: rows });
     } catch (err) {
-        res.status(500).json({ error: '資料庫連線失敗: ' + err.message });
+        res.status(500).json({ status: 'error', error: '資料庫連線失敗: ' + err.message });
     }
 });
 
