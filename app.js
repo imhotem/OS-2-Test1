@@ -6,20 +6,21 @@ const path = require('path');
 const app = express();
 app.use(express.json());
 
-// 讓後端能直接提供前端網頁檔 (index.html)
-app.use(express.static(path.join(__dirname)));
+// 提供前端網頁檔
+app.use(express.static(path.join(__dirname, '.')));
 
-// 1. 連線至 AWS RDS MySQL
+// 連線至 AWS RDS MySQL
 const db = mysql.createPool({
     host: process.env.DB_HOST,
     user: process.env.DB_USER,
     password: process.env.DB_PASSWORD,
     database: process.env.DB_NAME,
     waitForConnections: true,
-    connectionLimit: 10
+    connectionLimit: 10,
+    connectTimeout: 5000 // 避免連線卡死
 });
 
-// 2. 自動建立學生資料表
+// 自動檢查與建立表格
 const createTableSql = `
 CREATE TABLE IF NOT EXISTS students (
     id VARCHAR(50) PRIMARY KEY,
@@ -34,14 +35,16 @@ db.query(createTableSql, (err) => {
     if (err) {
         console.error('建立資料表失敗:', err);
     } else {
-        console.log('AWS RDS MySQL「students」資料表已準備就緒！');
+        db.query("ALTER TABLE students ADD COLUMN class_name VARCHAR(50)", (alterErr) => {
+            console.log('AWS RDS MySQL「students」資料表已準備就緒！');
+        });
     }
 });
 
-// 健康檢查 API
+// 測試健康檢查 API
 app.get('/api/health', (req, res) => {
     db.query('SELECT 1 + 1 AS result', (err, results) => {
-        if (err) return res.status(500).json({ error: err.message });
+        if (err) return res.status(500).json({ error: '資料庫連線失敗: ' + err.message });
         res.json({ message: 'AWS RDS 資料庫連線成功！', data: results });
     });
 });
@@ -56,7 +59,7 @@ app.get('/api/students', (req, res) => {
             gender: s.gender,
             school: s.school,
             grade: s.grade,
-            className: s.class_name
+            className: s.class_name || s.class || ''
         }));
         res.json(formatted);
     });
@@ -77,7 +80,7 @@ app.post('/api/students', (req, res) => {
     });
 });
 
-// API 3: 修改學員 (已補齊 SQL 逗號)
+// API 3: 修改學員
 app.put('/api/students/:id', (req, res) => {
     const { id } = req.params;
     const { name, gender, school, grade, className } = req.body;
@@ -88,6 +91,11 @@ app.put('/api/students/:id', (req, res) => {
     });
 });
 
-app.listen(process.env.PORT, () => {
-    console.log(`伺服器成功啟動於端口 ${process.env.PORT}`);
-});
+// 地端環境啟動伺服器，雲端環境導出模組
+if (process.env.NODE_ENV !== 'production' && !process.env.VERCEL) {
+    app.listen(process.env.PORT || 3000, () => {
+        console.log(`伺服器成功啟動於端口 ${process.env.PORT || 3000}`);
+    });
+}
+
+module.exports = app;
