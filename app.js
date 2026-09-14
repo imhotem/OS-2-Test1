@@ -6,15 +6,15 @@ require('dotenv').config();
 const app = express();
 app.use(express.json());
 
-// 1. 設定靜態檔案提供（讓前端網頁、CSS、JS 等可以直接被讀取）
+// 1. 設定靜態檔案提供
 app.use(express.static(path.join(__dirname, '.')));
 
-// 2. 首頁路由：當存取 cflr.com.tw/ 時，自動傳送 index.html
+// 2. 首頁路由
 app.get('/', (req, res) => {
     res.sendFile(path.join(__dirname, 'index.html'));
 });
 
-// 3. 建立 AWS RDS MySQL 資料庫連線池 (Connection Pool)
+// 3. AWS RDS MySQL 連線配置
 const dbConfig = {
     host: process.env.DB_HOST,
     user: process.env.DB_USER,
@@ -26,32 +26,51 @@ const dbConfig = {
     queueLimit: 0
 };
 
-// 4. API 健康檢查端點 (測試 RDS 連線)
+// 4. API - 健康檢查
 app.get('/api/health', async (req, res) => {
     try {
         const connection = await mysql.createConnection(dbConfig);
         const [rows] = await connection.execute('SELECT 1 + 1 AS result');
         await connection.end();
-        
-        res.json({
-            status: "ok",
-            message: "AWS RDS 資料庫連線成功！",
-            data: rows
-        });
+        res.json({ status: "ok", message: "AWS RDS 資料庫連線成功！", data: rows });
     } catch (error) {
-        console.error("Database connection error:", error);
-        res.status(500).json({
-            status: "error",
-            message: "資料庫連線失敗",
-            error: error.message
-        });
+        res.status(500).json({ status: "error", error: error.message });
     }
 });
 
-// 本地開發測試埠號設定
+// 5. API - 取得所有學生資料 (供「學生資料瀏覽」按鈕呼叫)
+app.get('/api/students', async (req, res) => {
+    try {
+        const connection = await mysql.createConnection(dbConfig);
+        // 請確認您的資料庫表名是否為 students，若不同可自行調整
+        const [rows] = await connection.execute('SELECT * FROM students');
+        await connection.end();
+        res.json({ status: "success", data: rows });
+    } catch (error) {
+        console.error("Fetch students error:", error);
+        res.status(500).json({ status: "error", error: error.message });
+    }
+});
+
+// 6. API - 新增學生資料
+app.post('/api/students', async (req, res) => {
+    const { id, name, gender, school, grade, student_class } = req.body;
+    try {
+        const connection = await mysql.createConnection(dbConfig);
+        const sql = 'INSERT INTO students (id, name, gender, school, grade, student_class) VALUES (?, ?, ?, ?, ?, ?)';
+        await connection.execute(sql, [id, name, gender, school, grade, student_class]);
+        await connection.end();
+        res.json({ status: "success", message: "新增成功！" });
+    } catch (error) {
+        console.error("Insert student error:", error);
+        res.status(500).json({ status: "error", error: error.message });
+    }
+});
+
+// 本地開發埠號
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
-    console.log(`Server is running on port ${PORT}`);
+    console.log(`Server running on port ${PORT}`);
 });
 
 module.exports = app;
